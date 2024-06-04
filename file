@@ -1,0 +1,86 @@
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+public class ChessBoardApp extends Application {
+
+    private Text selectedPiece = null;
+    private Rectangle selectedSquare = null;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        GridPane grid = new GridPane();
+        grid.setGridLinesVisible(true);
+
+        String[][] initialBoard = {
+                {"♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"},
+                {"♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {"♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"},
+                {"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"}
+        };
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Rectangle square = new Rectangle(50, 50);
+                if ((row + col) % 2 == 0) {
+                    square.setFill(Color.WHITE);
+                } else {
+                    square.setFill(Color.GRAY);
+                }
+
+                Text piece = null;
+                if (initialBoard[row][col] != null) {
+                    piece = new Text(initialBoard[row][col]);
+                }
+
+                final int r = row;
+                final int c = col;
+
+                square.setOnMouseClicked(event -> {
+                    if (selectedPiece != null) {
+                        if (piece == null || isOpponentPiece(selectedPiece.getText(), piece.getText())) {
+                            if (selectedSquare != null) {
+                                selectedSquare.getChildrenUnmodifiable().remove(selectedPiece);
+                            }
+                            grid.add(selectedPiece, c, r);
+                            selectedPiece = null;
+                            selectedSquare = null;
+                        }
+                    } else if (piece != null) {
+                        selectedPiece = piece;
+                        selectedSquare = square;
+                    }
+                });
+
+                grid.add(square, col, row);
+                if (piece != null) {
+                    grid.add(piece, col, row);
+                }
+            }
+        }
+
+        primaryStage.setTitle("Chessboard");
+        primaryStage.setScene(new Scene(grid, 400, 400));
+        primaryStage.show();
+    }
+
+    private boolean isOpponentPiece(String piece1, String piece2) {
+        String whitePieces = "♔♕♖♗♘♙";
+        String blackPieces = "♚♛♜♝♞♟";
+
+        return (whitePieces.contains(piece1) && blackPieces.contains(piece2)) ||
+               (blackPieces.contains(piece1) && whitePieces.contains(piece2));
+    }
+}
